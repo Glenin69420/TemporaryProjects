@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head th:replace="~{/templates/base.html::head}">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+  <link rel="icon" href="assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+
+  <!-- Fonts and icons -->
+  <script src="assets/js/plugin/webfont/webfont.min.js"></script>
+  <script>
+    WebFont.load({
+      google: { families: ["Public Sans:300,400,500,600,700"] },
+      custom: {
+        families: ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"],
+        urls: ["assets/css/fonts.min.css"],
+      },
+      active: function () {
+        sessionStorage.fonts = true;
+      },
+    });
+  </script>
+
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="assets/css/plugins.min.css" />
+  <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
+
+  <style>
+    /* Navbar blanca en escritorio y oscura en móvil */
+    @media (min-width: 992px) {
+      .navbar { background-color: #f8f9fa; }
+      .sidebar-wrapper { display: block; } /* Mostrar sidebar en escritorio */
+    }
+    @media (max-width: 991px) {
+      .navbar { background-color: #343a40; }
+      .sidebar-wrapper { display: none; } /* Ocultar sidebar en móvil */
+      .navbar .navbar-header-left, .navbar-brand, .navbar-toggler { display: none; }
+      .navbar-nav { margin-left: auto; }
+    }
+
+    /* Ajuste de contenedor al ancho completo */
+    .container-fluid { max-width: 100%; }
+
+    /* Estilos de lista para formularios y usuarios */
+    .list-group-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border: 1px solid #ddd;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+    .list-group-item:hover {
+      background-color: #f1f1f1;
+    }
+    .list-group-item .attribute {
+      flex: 1;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <!-- Sidebar -->
+  <div class="sidebar" data-background-color="dark">
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+      <!-- Sidebar content as in original -->
+    </div>
+  </div>
+
+  <div class="main-panel">
+    <!-- Navbar -->
+    <nav class="navbar navbar-header navbar-expand-lg border-bottom">
+      <div class="container-fluid">
+        <ul class="navbar-nav topbar-nav ms-auto align-items-center">
+          <li class="nav-item topbar-user dropdown">
+            <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+              <span class="fw-bold">Hi, <span th:text="${usuario.nombre}">User</span></span>
+            </a>
+            <ul class="dropdown-menu dropdown-user animated fadeIn">
+              <li><a class="dropdown-item" th:href="@{/usuarios/{id}(id=${usuario.usuario})}">Ver Perfil</a></li>
+              <li><a class="dropdown-item" th:href="@{/login}">Cerrar Sesión</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <!-- End Navbar -->
+
+    <div class="container-fluid">
+      <div class="page-inner">
+        <!-- Título y botones de acción -->
+        <div class="d-flex align-items-center pt-2 pb-4">
+          <h3 class="fw-bold mb-3">Dashboard</h3>
+          <div class="ms-auto">
+            <a th:if="${usuario.admin}" href="/CrearUsuario" class="btn btn-info btn-round me-2">Usuario</a>
+            <a href="/NuevoFormulario" class="btn btn-primary btn-round">Formulario</a>
+          </div>
+        </div>
+
+        <!-- Formularios Hechos -->
+        <div class="row">
+          <div class="col-md-8">
+            <div class="card card-round">
+              <div class="card-header d-flex justify-content-between">
+                <span class="card-title">Formularios Hechos</span>
+                <div>
+                  <a href="#" class="btn btn-label-success btn-round btn-sm">Export</a>
+                  <a href="#" class="btn btn-label-info btn-round btn-sm">Print</a>
+                </div>
+              </div>
+              <div class="card-body">
+                <div th:if="${formularios.isEmpty()}">
+                  <p>Aún no se ha hecho ningún formulario</p>
+                </div>
+                <div th:unless="${formularios.isEmpty()}">
+                  <ul class="list-group">
+                    <li class="list-group-item" th:each="formulario : ${formularios}">
+                      <a th:href="@{/formularios/{id}(id=${formulario.id})}" style="text-decoration: none; color: inherit;">
+                        <span class="attribute" th:text="${formulario.nombre}">Nombre</span>
+                        <span class="attribute" th:text="${formulario.apellido}">Apellido</span>
+                        <span class="attribute" th:text="${formulario.nivelEscolar}">Nivel</span>
+                      </a>
+                      <form th:action="@{/EliminarFormulario/{id}(id=${formulario.id})}" method="post" style="display:inline;">
+                        <input type="hidden" name="_method" value="DELETE"/>
+                        <button type="submit" class="delete-button" style="background: none; border: none; font-weight: bold;">X</button>
+                      </form>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contenedor para el mapa -->
+          <div class="col-md-4">
+            <div class="card card-primary card-round">
+              <div class="card-header">
+                <span class="card-title">Mapa de Formularios</span>
+              </div>
+              <div class="card-body">
+                <div id="map" style="width: 100%; height: 400px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Todos los Formularios -->
+        <div class="row" th:if="${usuario.admin}">
+          <div class="col-md-12">
+            <div class="card card-round">
+              <div class="card-header">
+                <span class="card-title">Todos los Formularios</span>
+              </div>
+              <div class="card-body">
+                <ul class="list-group">
+                  <li class="list-group-item" th:each="formulario : ${todosLosFormularios}">
+                    <a th:href="@{/formularios/{id}(id=${formulario.id})}" style="text-decoration: none; color: inherit;">
+                      <span class="attribute" th:text="${formulario.nombre}">Nombre</span>
+                      <span class="attribute" th:text="${formulario.apellido}">Apellido</span>
+                      <span class="attribute" th:text="${formulario.nivelEscolar}">Nivel</span>
+                      <span class="attribute" th:text="${formulario.usuario}">Usuario</span>
+                    </a>
+                    <form th:action="@{/EliminarFormulario/{id}(id=${formulario.id})}" method="post" style="display:inline;">
+                      <input type="hidden" name="_method" value="DELETE"/>
+                      <button type="submit" class="delete-button" style="color: red; background: none; border: none; font-weight: bold;">X</button>
+                    </form>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Usuarios -->
+        <div class="row" th:if="${usuario.admin}">
+          <div class="col-md-4">
+            <div class="card card-round">
+              <div class="card-header">
+                <span class="card-title">Usuarios</span>
+              </div>
+              <div class="card-body">
+                <ul class="list-group">
+                  <li class="list-group-item" th:each="user : ${usuarios}">
+                    <a th:href="@{/usuarios/{id}(id=${user.usuario})}" style="text-decoration: none; color: inherit;">
+                      <span class="attribute" th:text="${user.usuario}">Username</span>
+                      <span class="attribute" th:text="${user.nombre}">Nombre</span>
+                    </a>
+                    <form th:action="@{/EliminarUsuario/{usuario}(usuario=${user.usuario})}" method="post" style="display:inline;">
+                      <input type="hidden" name="_method" value="DELETE"/>
+                      <button type="submit" class="delete-button" style="color: red; background: none; border: none; font-weight: bold;">X</button>
+                    </form>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Historial de Transacciones -->
+          <div class="col-md-8">
+            <div class="card card-round">
+              <div class="card-header">
+                <span class="card-title">Transaction History</span>
+              </div>
+              <div class="card-body">
+                <p>Historial de transacciones se mostrará aquí.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/core/jquery.min.js"></script>
+<script src="assets/js/core/popper.min.js"></script>
+<script src="assets/js/core/bootstrap.min.js"></script>
+
+<!-- Estilos de Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+<script th:inline="javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+    // Inicializar el mapa centrado en coordenadas promedio
+    const map = L.map('map').setView([0, 0], 2);
+
+    // Cargar el mapa base desde OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Obtener los formularios con coordenadas desde el servidor
+    const formularios = [[${formularios}]];
+
+    // Agregar un marcador para cada formulario con sus coordenadas
+    const markers = [];
+    formularios.forEach(formulario => {
+      if (formulario.latitud && formulario.longitud) {
+        const marker = L.marker([formulario.latitud, formulario.longitud]).addTo(map);
+        marker.bindPopup(`<b>Formulario ID:</b> ${formulario.id}<br><b>Nombre:</b> ${formulario.nombre}`);
+        markers.push(marker);
+      }
+    });
+
+    // Ajustar el zoom para que todos los marcadores sean visibles en el mapa
+    if (markers.length) {
+      const group = new L.featureGroup(markers);
+      map.fitBounds(group.getBounds());
+    }
+  });
+</script>
+
+</body>
+</html>

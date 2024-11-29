@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{/templates/base.html::head}">
+  <title>Dashboard de Ventas</title>
+</head>
+<body>
+<div class="container py-5">
+  <h1>Dashboard de Ventas</h1>
+  <div class="row">
+    <div class="col-md-6">
+      <h3>Total de Ventas: $<span id="total-ventas" th:text="${totalVentas}">0</span></h3>
+    </div>
+    <div class="col-md-6">
+      <!-- Gráfico de pastel para productos -->
+      <div id="productos-pie-chart" style="width: 100%; height: 400px;"></div>
+    </div>
+    <div class="col-md-12 mt-4">
+      <!-- Histograma de ventas -->
+      <div id="ventas-histogram" style="width: 100%; height: 500px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Código JavaScript para manejar gráficos y WebSocket -->
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+  // Cargar Google Charts y establecer la función de inicialización
+  google.charts.load('current', {packages: ['corechart', 'bar']});
+  google.charts.setOnLoadCallback(initializeCharts);
+
+  function initializeCharts() {
+    const productosData = /*[[${productos}]]*/ [];
+    const ventasData = /*[[${histogramaVentas}]]*/ [];
+
+    drawProductosPieChart(productosData);
+    drawVentasHistogram(ventasData);
+  }
+
+  // Funciones para dibujar gráficos
+  function drawProductosPieChart(datos) { /* ... */ }
+  function drawVentasHistogram(datos) { /* ... */ }
+</script>
+<script type="text/javascript">
+  // Cargar Google Charts y establecer la función de inicialización
+  google.charts.load('current', {'packages':['corechart', 'bar']});
+  google.charts.setOnLoadCallback(initializeCharts);
+
+  // Función para inicializar y dibujar gráficos al cargar la página
+  function initializeCharts() {
+    const productosData = /*[[${productos}]]*/ [];
+    const ventasData = /*[[${histogramaVentas}]]*/ [];
+
+    console.log("Datos de productos:", productosData);
+    console.log("Datos de ventas:", ventasData);
+
+    drawProductosPieChart(productosData);
+    drawVentasHistogram(ventasData);
+  }
+
+  function drawProductosPieChart(datos) {
+    const data = new google.visualization.DataTable();
+    data.addColumn('string', 'Producto');
+    data.addColumn('number', 'Cantidad');
+
+    datos.forEach(item => {
+      data.addRow([item.nombre, item.cantidad]);
+    });
+
+    const options = {
+      title: 'Cantidad de Productos Vendidos',
+      pieHole: 0.4,
+      colors: ['#FF6384', '#36A2EB', '#FFCE56'],
+    };
+
+    const chart = new google.visualization.PieChart(document.getElementById('productos-pie-chart'));
+    chart.draw(data, options);
+  }
+
+
+  // Función para el histograma de ventas
+  function drawVentasHistogram(datos) {
+    const data = new google.visualization.DataTable();
+    data.addColumn('datetime', 'Fecha de Venta');
+    data.addColumn('number', 'Total Vendido');
+
+    datos.forEach(venta => {
+      const fecha = new Date(venta.fecha);
+      data.addRow([fecha, venta.total]);
+    });
+
+    const options = {
+      title: 'Ventas a lo Largo del Tiempo',
+      hAxis: {title: 'Fecha'},
+      vAxis: {title: 'Total Vendido'},
+      legend: 'none',
+      colors: ['#36A2EB'],
+    };
+
+    const chart = new google.visualization.ColumnChart(document.getElementById('ventas-histogram'));
+    chart.draw(data, options);
+  }
+
+
+  // WebSocket para actualizaciones en tiempo real
+  const ws = new WebSocket('ws://' + location.hostname + ':' + location.port + '/dashboard/ws');
+  ws.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    console.log("Datos recibidos del WebSocket:", data);  // Verifica los datos recibidos
+    updateDashboard(data);
+  };
+
+
+  // Actualiza el dashboard con nuevos datos del WebSocket
+  function updateDashboard(data) {
+    document.getElementById('total-ventas').innerText = `$${data.totalVentas.toFixed(2)}`;
+    drawProductosPieChart(data.productos);
+    drawVentasHistogram(data.histogramaVentas);
+  }
+
+  ws.onopen = function() {
+    console.log("WebSocket conectado para actualizaciones en tiempo real.");
+  };
+
+  ws.onclose = function() {
+    console.log("WebSocket desconectado.");
+  };
+
+  ws.onerror = function(error) {
+    console.error("WebSocket error: ", error);
+  };
+</script>
+
+
+<!-- Footer -->
+<div th:replace="~{/templates/base.html::footer}"></div>
+</body>
+</html>

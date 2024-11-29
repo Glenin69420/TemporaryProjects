@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head th:replace="~{/templates/base.html::head}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Formularios</title>
+</head>
+<body>
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="bg-light p-5 rounded">
+                    <h1 class="text-center">Lista de Formularios</h1>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Teléfono</th>
+                            <th>Nivel Escolar</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="formulario : ${formularios}">
+                            <td th:text="${formulario.nombre}"></td>
+                            <td th:text="${formulario.apellido}"></td>
+                            <td th:text="${formulario.telefono}"></td>
+                            <td th:text="${formulario.nivelEscolar}"></td>
+                            <td>
+                                <a href="/formularios/ver/{formulario.id}" class="btn btn-info btn-sm">Ver</a>
+                                <a href="/formularios/editar/{formulario.id}" class="btn btn-warning btn-sm">Editar</a>
+                                <a href="/formularios/eliminar/{formulario.id}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <a href="/crearFormulario" class="btn btn-primary">Crear Nuevo Formulario</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{/templates/base.html::footer}"></div>
+</body>
+</html>

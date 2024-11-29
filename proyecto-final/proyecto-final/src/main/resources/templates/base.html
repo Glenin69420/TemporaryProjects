@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <title th:text="${title}"></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Kaiadmin Dashboard</title>
+    <link rel="icon" href="assets/img/kaiadmin/favicon.ico" type="image/x-icon">
+
+    <!-- Fonts and icons -->
+    <script src="assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+        WebFont.load({
+            google: { families: ["Public Sans:300,400,500,600,700"] },
+            custom: {
+                families: ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"],
+                urls: ["assets/css/fonts.min.css"]
+            },
+            active: function () {
+                sessionStorage.fonts = true;
+            }
+        });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+    <link rel="stylesheet" href="/assets/css/plugins.min.css">
+    <link rel="stylesheet" href="/assets/css/custom.css" th:if="${extraStyles}">
+
+</head>
+
+<body>
+<div class="wrapper">
+    <!-- Sidebar -->
+    <div th:replace="~{/fragments/sidebar :: sidebar}"></div>
+    <!-- End Sidebar -->
+
+    <!-- Main Content -->
+    <div class="main-panel">
+        <!-- Header -->
+        <header th:replace="~{/fragments/header :: header}"></header>
+        <!-- End Header -->
+
+        <!-- Main Content Section -->
+        <main class="content">
+            <div class="container-fluid py-4">
+                <div th:insert="${content}"></div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+<script src="/assets/js/core/jquery.min.js"></script>
+<script src="/assets/js/core/popper.min.js"></script>
+<script src="/assets/js/core/bootstrap.min.js"></script>
+<script src="/assets/js/plugin/chart.js"></script>
+<script src="/assets/js/plugin/jquery.scrollbar.min.js"></script>
+
+<!-- Custom JS per page -->
+<th:block th:replace="${js}"></th:block>
+</body>
+</html>

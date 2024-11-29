@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conteo de Usuarios Conectados</title>
+    <style>
+        #user-count {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+<div id="user-count">Usuarios conectados: 0</div>
+
+<script>
+    const userCountDiv = document.getElementById('user-count');
+
+    // Función para conectar al WebSocket
+    const socket = new WebSocket('ws://localhost:7000/user-count');
+
+    // Manejador para recibir actualizaciones de usuarios conectados
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        if (data.type === 'userCount') {
+            userCountDiv.textContent = `Usuarios conectados: ${data.count}`;
+        }
+    };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="~{/templates/base.html::head}">
+    <style>
+        .webcam-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 100%;
+        }
+        #webcam, #canvas {
+            width: 100%;
+            height: auto;
+            max-width: 640px;
+            margin-bottom: 10px;
+        }
+        #capture-btn, #retake-btn {
+            margin-top: 10px;
+            width: 80%;
+            max-width: 200px;
+        }
+    </style>
+</head>
+<body>
+<div class="main-panel">
+    <div class="container">
+        <div class="page-inner">
+            <div class="page-header">
+                <h3 class="fw-bold mb-3" th:text="${title}">Formulario de Registro</h3>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title" th:text="${modo}"></div>
+                        </div>
+
+                        <!-- Formulario para crear -->
+                        <div class="card-body" th:if="${modo == 'Crear'}">
+                            <form action="/NuevoFormulario" method="POST">
+                                <!-- Campos del formulario -->
+                                <div class="form-group">
+                                    <label for="nombre">Nombre</label>
+                                    <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Nombre" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="apellido">Apellido</label>
+                                    <input type="text" class="form-control" name="apellido" id="apellido" placeholder="Apellido" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="telefono">Teléfono</label>
+                                    <input type="tel" class="form-control" name="telefono" id="telefono" placeholder="Número de teléfono" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="nivelEscolar">Nivel Escolar</label>
+                                    <select class="form-select" id="nivelEscolar" name="nivelEscolar">
+                                        <option value="basico">Básico</option>
+                                        <option value="medio">Medio</option>
+                                        <option value="grado">Grado Universitario</option>
+                                        <option value="postgrado">Postgrado</option>
+                                        <option value="doctorado">Doctorado</option>
+                                    </select>
+                                </div>
+
+                                <!-- Contenedor de la webcam -->
+                                <div class="webcam-container">
+                                    <video id="webcam" autoplay playsinline></video>
+                                    <canvas id="canvas" class="d-none"></canvas>
+                                    <audio id="snapSound" src="audio/snap.wav" preload="auto"></audio>
+
+                                    <button type="button" id="capture-btn" class="btn btn-primary">Tomar Foto</button>
+                                    <button type="button" id="retake-btn" class="btn btn-secondary d-none">Tomar Otra Foto</button>
+                                    <input type="hidden" id="fotoBase64" name="fotoBase64" />
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="ubicacion">Ubicación</label>
+                                    <input type="text" class="form-control" id="ubicacion" name="ubicacion" readonly placeholder="Latitud, Longitud" />
+                                </div>
+                                <button type="submit" class="btn btn-primary">Enviar</button>
+                            </form>
+                        </div>
+
+                        <!-- Formulario para visualizar -->
+                        <div class="card-body" th:if="${modo == 'Ver'}">
+                            <form th:action="@{/EditarFormulario/{id}(id=${formulario.id})}" method="POST">
+                                <div class="form-group">
+                                    <label for="nombre">Nombre</label>
+                                    <input type="text" class="form-control" name="nombre" readonly th:value="${formulario.nombre}" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="apellido">Apellido</label>
+                                    <input type="text" class="form-control" name="apellido" readonly th:value="${formulario.apellido}" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="telefono">Teléfono</label>
+                                    <input type="tel" class="form-control" name="telefono" readonly th:value="${formulario.telefono}"  />
+                                </div>
+                                <div class="form-group">
+                                    <label for="nivelEscolar">Nivel Escolar</label>
+                                    <input type="text" class="form-control" name="nivelEscolar" readonly th:value="${formulario.nivelEscolar}"  />
+                                </div>
+                                <div class="card mt-3" style="max-width: 250px;">
+                                    <div class="card-body text-center">
+                                        <div class="webcam-container">
+                                            <img th:if="${formulario.fotoBase64 != null}"
+                                                 th:src="${formulario.fotoBase64}"
+                                                 class="img-fluid shadow" style="width: 100%; max-width: 200px;" alt="Foto del formulario">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label for="ubicacion">Ubicación</label>
+                                    <input type="text" class="form-control" name="ubicacion" readonly th:value="${formulario.latitud} + ${formulario.longitud}" />
+                                </div>
+                                <button type="submit" class="btn btn-primary">Editar</button>
+                            </form>
+                        </div>
+
+                        <!-- Formulario para editar -->
+                        <div class="card-body" th:if="${modo == 'Editar'}">
+                            <form th:action="@{/UpdateFormulario/{id}(id=${formulario.id})}" method="POST">
+                                <div class="form-group">
+                                    <label for="nombre">Nombre</label>
+                                    <input type="text" class="form-control" id="nombreUpdate" name="nombre" th:value="${formulario.nombre}" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="apellido">Apellido</label>
+                                    <input type="text" class="form-control" id="apellidoUpdate" name="apellido" th:value="${formulario.apellido}" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="telefono">Teléfono</label>
+                                    <input type="tel" class="form-control" id="telefonoUpdate" name="telefono" th:value="${formulario.telefono}"  />
+                                </div>
+                                <div class="form-group">
+                                    <label for="nivelEscolar">Nivel Escolar</label>
+                                    <select class="form-select" id="nivelEscolarUpdate" name="nivelEscolar">
+                                        <option value="basico">Básico</option>
+                                        <option value="medio">Medio</option>
+                                        <option value="grado">Grado Universitario</option>
+                                        <option value="postgrado">Postgrado</option>
+                                        <option value="doctorado">Doctorado</option>
+                                    </select>
+                                </div>
+                                <div class="card mt-3" style="max-width: 250px;">
+                                    <div class="card-body text-center">
+                                        <div class="webcam-container">
+                                            <img th:if="${formulario.fotoBase64 != null}"
+                                                 th:src="${formulario.fotoBase64}"
+                                                 class="img-fluid shadow" style="width: 100%; max-width: 200px;" alt="Foto del formulario">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label for="ubicacion">Ubicación</label>
+                                    <input type="text" class="form-control" name="ubicacion" readonly th:value="${formulario.latitud} + ${formulario.longitud}" />
+                                </div>
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Geolocalización -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(
+                function(position) {
+                    document.getElementById('ubicacion').value = position.coords.latitude + ', ' + position.coords.longitude;
+                },
+                function(error) {
+                    console.error("Error al obtener la ubicación:", error);
+                },
+                { enableHighAccuracy: true }
+            );
+        } else {
+            document.getElementById('ubicacion').value = "Geolocation is not supported by this browser.";
+        }
+    });
+</script>
+
+<script src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"></script>
+<script>
+    const webcamElement = document.getElementById('webcam');
+    const canvasElement = document.getElementById('canvas');
+    const snapSoundElement = document.getElementById('snapSound');
+    const captureButton = document.getElementById('capture-btn');
+    const retakeButton = document.getElementById('retake-btn');
+    const fotoBase64Input = document.getElementById('fotoBase64');
+    const webcam = new Webcam(webcamElement, 'user', canvasElement, snapSoundElement);
+
+    webcam.start()
+        .then(() => console.log("Webcam iniciada"))
+        .catch(err => console.error(err));
+
+    captureButton.addEventListener("click", () => {
+        const picture = webcam.snap();
+        fotoBase64Input.value = picture; // Almacena la imagen en formato base64 en el campo oculto
+        canvasElement.classList.remove("d-none");
+        webcamElement.classList.add("d-none");
+        captureButton.classList.add("d-none");
+        retakeButton.classList.remove("d-none");
+    });
+
+    retakeButton.addEventListener("click", () => {
+        webcamElement.classList.remove("d-none");
+        canvasElement.classList.add("d-none");
+        retakeButton.classList.add("d-none");
+        captureButton.classList.remove("d-none");
+        webcam.start();
+    });
+
+</script>
+</body>
+</html>

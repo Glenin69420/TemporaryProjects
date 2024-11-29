@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head th:replace="~{/templates/base.html::head}">
+</head>
+<body>
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="bg-light p-5 rounded">
+                    <div th:if="${title == 'listaUsuarios'}">
+                        <form action="/volver" method="POST">
+                            <button class="btn btn-primary">Volver</button>
+                        </form>
+                        <h1>Lista de Usuarios</h1>
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Nombre</th>
+                                <th>Rol</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="usuario : ${usuarios}">
+                                <td th:text="${usuario.usuario}"></td>
+                                <td th:text="${usuario.nombre}"></td>
+                                <td th:text="${usuario.rol} ? 'ADMIN' : 'NORMAL'" />
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${title == 'listaFacturas'}">
+                        <form action="/volver" method="POST">
+                            <button class="btn btn-primary">Volver</button>
+                        </form>
+                        <h1>Lista de facturas</h1>
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Cliente</th>
+                                <th>Productos</th>
+                                <th>Fecha</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="factura : ${facturas}">
+                                <td th:text="${factura.carrito_id}"></td>
+                                <td th:text="${factura.owner}"></td>
+                                <td>
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Precio</th>
+                                            <th>Cantidad</th>
+                                            <th>Total</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="carritoItem : ${factura.listaItems}">
+                                            <td th:text="${carritoItem.nombre}"></td>
+                                            <td th:text="${carritoItem.precio}"></td>
+                                            <td th:text="${carritoItem.cantidad}"></td>
+                                            <td th:text="${carritoItem.cantidad * carritoItem.precio}"></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td th:text="${#temporals.formatISO(factura.fecha)}"></td>
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{/templates/base.html::footer}"></div>
+</body>
+</html>

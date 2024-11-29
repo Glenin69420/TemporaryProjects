@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head th:replace="~{/templates/base.html::head}">
+</head>
+<body>
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="bg-light p-5 rounded">
+                    <div th:if="${title == 'CRUD'}">
+                    <form action="/agregar" method="GET">
+                        <button class="btn btn-primary">Agregar</button>
+                    </form>
+                    <h1>Lista de Productos</h1>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Id</th>
+                            <th>Accion</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="producto : ${productos}">
+                            <td th:text="${producto.nombre}"></td>
+                            <td th:text="${producto.precio}"></td>
+                            <td th:text="${producto.id}"></td>
+                            <td>
+                                <form action="/eliminar" method="POST" style="display:inline;">
+                                    <input type="hidden" th:name="id" th:value="${producto.id}">
+                                    <button class="btn btn-secondary">Eliminar</button>
+                                </form>
+                                <form action="/editar" method="POST" style="display:inline;">
+                                    <input type="hidden" th:name="id" th:value="${producto.id}">
+                                    <button class="btn btn-secondary">Editar</button>
+                                </form>
+
+                            </td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+                    </div>
+                    <div th:if="${title == 'carrito'}">
+                        <form action="/pagar" method="POST">
+                            <button class="btn btn-primary">Pagar</button>
+                        </form>
+                        <h1>Lista de Productos</h1>
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Accion</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="carritoItem : ${carrito.listaItems}">
+                                <td th:text="${carritoItem.nombre}"></td>
+                                <td th:text="${carritoItem.precio * carritoItem.cantidad}"></td>
+                                <td>
+                                    <form action="/eliminarDelCarrito" method="POST" style="display:inline;">
+                                        <input type="hidden" th:name="id" th:value="${carritoItem.id}">
+                                        <input type="hidden" th:name="cantidad" th:value="${carritoItem.cantidad}">
+                                        <button class="btn btn-secondary">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+                    </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+<div th:replace="~{/templates/base.html::footer}"></div>
+</body>
+</html>

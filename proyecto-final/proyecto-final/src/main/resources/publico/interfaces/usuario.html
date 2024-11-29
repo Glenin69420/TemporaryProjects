@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="~{/templates/base.html::head}"></head>
+<body>
+<div class="main-panel">
+    <div class="main-header">
+        <div class="main-header-logo">
+            <!-- Logo Header -->
+            <div class="logo-header" data-background-color="dark">
+                <a href="index.html" class="logo">
+                    <img src="../assets/img/kaiadmin/logo_light.svg" alt="navbar brand" class="navbar-brand" height="20" />
+                </a>
+                <div class="nav-toggle">
+                    <button class="btn btn-toggle toggle-sidebar">
+                        <i class="gg-menu-right"></i>
+                    </button>
+                    <button class="btn btn-toggle sidenav-toggler">
+                        <i class="gg-menu-left"></i>
+                    </button>
+                </div>
+                <button class="topbar-toggler more">
+                    <i class="gg-more-vertical-alt"></i>
+                </button>
+            </div>
+            <!-- End Logo Header -->
+        </div>
+        <!-- Navbar Header -->
+        <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+            <div class="container-fluid">
+                <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+                    <!-- Navbar content -->
+                </ul>
+            </div>
+        </nav>
+        <!-- End Navbar -->
+    </div>
+
+    <div class="container">
+        <div class="page-inner">
+            <div class="page-header">
+                <h3 class="fw-bold mb-3" th:text="${title}">Usuario</h3>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="page-header">
+                            <h3 class="fw-bold mb-3" th:text="${title}">Usuario</h3>
+                        </div>
+                        <div class="card-body" th:if="${modo == 'Crear'}">
+                            <form action="/CrearUsuario" method="POST">
+                                <div class="form-group">
+                                    <label for="usuario">Usuario</label>
+                                    <input type="text" class="form-control" name="usuario" id="usuario" placeholder="Ingrese el nombre de usuario" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password</label>
+                                    <input type="password" class="form-control" name="password" id="password" placeholder="Ingrese la contraseña" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="nombre">Nombre Completo</label>
+                                    <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Ingrese el nombre completo" />
+                                </div>
+                                <div class="form-group form-check">
+                                    <input type="checkbox" class="form-check-input" name="admin" id="admin" />
+                                    <label class="form-check-label" for="admin">Administrador</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Crear Usuario</button>
+                            </form>
+                        </div>
+                        <div class="card-body" th:if="${modo == 'Ver'}">
+                            <form th:action="@{/EditarUsuario/{id}(id=${usuario.usuario})}" method="POST">
+                                <div class="form-group">
+                                    <label for="usuario">Usuario</label>
+                                    <input type="text" class="form-control" name="usuario" readonly th:value="${usuario.usuario}"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password</label>
+                                    <input type="password" class="form-control" name="password" placeholder="********" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="nombre">Nombre Completo</label>
+                                    <input type="text" class="form-control" name="nombre" readonly th:value="${usuario.nombre}" />
+                                </div>
+                                <div class="form-group form-check" th:if="${usuario.admin == false}">
+                                    <input type="checkbox" class="form-check-input" readonly name="admin"  />
+                                    <label class="form-check-label" for="admin">Administrador</label>
+                                </div>
+                                <div class="form-group form-check" th:if="${usuario.admin == true}">
+                                    <input type="checkbox" class="form-check-input" readonly name="admin" checked />
+                                    <label class="form-check-label" for="admin">Administrador</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Editar Usuario</button>
+                            </form>
+                        </div>
+                        <div class="card-body" th:if="${modo == 'Editar'}">
+                            <form th:action="@{/UpdateUsuario/{id}(id=${usuario.usuario})}"  method="POST">
+                                <div class="form-group">
+                                    <label for="usuario">Usuario</label>
+                                    <input type="text" class="form-control" name="usuario" id="usuarioUpdate" th:value="${usuario.usuario}"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password</label>
+                                    <input type="password" class="form-control" name="password" id="passwordUpdate" th:value="${usuario.password}" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="nombre">Nombre Completo</label>
+                                    <input type="text" class="form-control" name="nombre" id="nombreUpdate" th:value="${usuario.nombre}" />
+                                </div>
+                                <div class="form-group form-check">
+                                    <input type="checkbox" class="form-check-input" name="admin" id="adminUpdate" />
+                                    <label class="form-check-label" for="admin">Administrador</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

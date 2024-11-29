@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head th:replace="~{/templates/base.html::head}"></head>
+
+<body>
+
+<div th:replace="~{/templates/base.html::navbar}"></div>
+
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Tienda</h1>
+</div>
+<!-- Single Page Header End -->
+
+<!-- Cart Page Start -->
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Cantidad</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="producto : ${productos}">
+                    <th scope="row">
+                        <!-- Enlace como botón que envía el formulario -->
+                        <form action="/producto" method="POST" style="display:inline;">
+                            <input type="hidden" name="idProducto" th:value="${producto.id}">
+                            <button type="submit" class="d-flex align-items-center text-decoration-none text-dark btn-link" style="border:none; background:none;">
+                                <img th:if="${producto.fotoBase64 != null}" th:src="'data:image/jpeg;base64,' + ${producto.fotoBase64}"
+                                     class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt="">
+                                <img th:if="${producto.fotoBase64 == null}" src="img/vegetable-item-3.png"
+                                     class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt="Imagen por defecto">
+                                <span th:text="${producto.descripcion}" class="ms-3"></span>
+                            </button>
+                        </form>
+                    </th>
+                    <td th:text="${producto.nombre}"></td>
+                    <td th:text="${producto.precio}"></td>
+                    <td>
+                        <!-- Formulario para agregar al carrito con botones de cantidad -->
+                        <form action="/carrito" method="POST" style="display:inline;">
+                            <div class="input-group quantity mt-4" style="width: 100px;">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-sm btn-minus rounded-circle bg-light border" onclick="changeQuantity(this, -1)">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                                <input type="text" name="cantidad" class="form-control form-control-sm text-center border-0" value="0">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-sm btn-plus rounded-circle bg-light border" onclick="changeQuantity(this, 1)">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <input type="hidden" name="id" th:value="${producto.id}">
+                            <button type="submit" class="btn btn-secondary mt-2">Agregar</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Cart Page End -->
+
+<div th:replace="~{/templates/base.html::footer}"></div>
+
+<script>
+    function changeQuantity(button, increment) {
+        var input = button.parentElement.parentElement.querySelector('input[name="cantidad"]');
+        var currentValue = parseInt(input.value);
+        if (!isNaN(currentValue)) {
+            input.value = currentValue + increment -1;
+        } else {
+            input.value = increment;
+        }
+    }
+</script>
+</body>
+
+</html>
